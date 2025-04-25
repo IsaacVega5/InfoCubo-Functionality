@@ -9,7 +9,7 @@ from icons import CUBE_ICON
 class Main:
     def __init__(self, root):
         self.root = root
-        self.root.title("Indices GET")
+        self.root.title("InfoCubo - Functionality")
         
         style = ttk.Style()
         style.theme_use("darkly")
