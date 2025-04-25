@@ -1,26 +1,35 @@
 import tkinter as tk
 import ttkbootstrap as ttk
+from ttkbootstrap.icons import Icon
 
 from utils.process import calculate_index
 import widgets as wdg
-
+from icons import CUBE_ICON
 
 class Main:
     def __init__(self, root):
         self.root = root
         self.root.title("Indices GET")
-
+        
         style = ttk.Style()
         style.theme_use("darkly")
-        #
+        
+        icon = tk.PhotoImage(data=CUBE_ICON)
+        self.root.iconphoto(False, icon)
+        
+        
+        
         # self.root.geometry("400x300")
         # self.root.resizable(False, False)
 
     def create_widgets(self):
+        
         self.main_frame = ttk.Frame(self.root, padding=20)
         self.main_frame.pack(fill="both", expand=True)
         self.main_frame.configure(padding=20)
 
+        self.top_bar = wdg.TopBar(self.main_frame)
+        
         self.nano_entry = wdg.InputFrame(self.main_frame, text="Nano")
         self.nano_entry.pack(fill="x", pady=5)
         self.swir_entry = wdg.InputFrame(self.main_frame, text="Swir")
