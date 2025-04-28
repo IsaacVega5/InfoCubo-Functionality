@@ -1,7 +1,8 @@
 import os
 import subprocess
 import platform
-
+import re
+import unicodedata
 
 def open_file(path):
     try:
@@ -51,3 +52,19 @@ def get_firmware(metadata):
         if "firmware" in str(key).lower():
             return metadata[key]
     return None
+
+
+def formate_filename(nombre):
+    # Normalizar caracteres unicode (convertir acentos a caracteres base)
+    nombre = unicodedata.normalize('NFKD', nombre).encode('ascii', 'ignore').decode('ascii')
+    
+    # Reemplazar espacios y caracteres no permitidos por guiones bajos
+    nombre = nombre.replace(',', '-')
+    nombre = re.sub(r'[^\w\-_. ]', '', nombre)
+    nombre = nombre.replace(' ', '_')
+    nombre = nombre.replace("*", "x")
+    
+    # Limitar la longitud del nombre (opcional)
+    nombre = nombre[:255]  # Límite común en muchos sistemas de archivos
+    
+    return nombre
