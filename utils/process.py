@@ -1,3 +1,4 @@
+from tkinter.filedialog import askdirectory
 import numpy as np
 import spectral.io.envi as envi
 from utils.files import formate_filename, get_firmware, get_metadata
@@ -5,8 +6,18 @@ from utils.formula import eval_formula, format_formula
 from utils.index import get_closest_wavelength, read_idex_list
 from utils.rois import get_roi_info, read_roi
 import pandas as pd
+import os
 
 def calculate_index(nano_data, swir_data, console):
+    
+    # Obtener la carpeta de destino para guardar los resultados
+    folder = askdirectory(title="Select folder to save results")
+    if folder == "":
+        return
+    
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    
     imgs = {
         'nano' : envi.open(nano_data["img"]),
         'swir' : envi.open(swir_data["img"])
@@ -65,9 +76,8 @@ def calculate_index(nano_data, swir_data, console):
             raise ValueError(
                 f"Error parsing bands: {e}. Please check the format of the bands in the index list."
             )
-            
-        print(f"Formula: {formula}")
-
+        
+        # 5. Por cada banda obtener el valor de la banda mas cercana en el otro sensor
         closest = { band : get_closest_wavelength(band) for band in bands }
 
         console.add_text("\n[i] Closest Wavelengths: ", "#4582ec")
@@ -116,7 +126,9 @@ def calculate_index(nano_data, swir_data, console):
         # 10. Almacenar los resultados en un diccionario de indices
         #    eg. indices = {"index1": {"parcela1": 0.1, "parcela2": 0.2}, "index2": {...}}
         df = pd.DataFrame.from_dict(results, orient='index')
-        file_name = formate_filename(current_index['Name'])
-        df.to_excel(f"./res/{file_name}.xlsx", index=False)
+        
         # 11. Exportar el diccionario de indices en un archivo .xlsx y crear una hoja por cada indice
+        file_name = formate_filename(current_index['Name'])
+        df.to_excel(f"{folder}/{file_name}.xlsx", index=False)
+    return folder + "/"
         

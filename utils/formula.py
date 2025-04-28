@@ -3,7 +3,7 @@ import numexpr as ne
 import re
 import numpy as np
 
-def format_formula(formula : str, image_prefix : str = "img") -> str:
+def format_formula(formula : str) -> str:
   """
   Format the formula to be used in the calculation of the index.
   

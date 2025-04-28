@@ -1,7 +1,9 @@
+import os
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.icons import Icon
 
+from utils.files import open_file
 from utils.process import calculate_index
 import widgets as wdg
 from icons import CUBE_ICON
@@ -58,8 +60,12 @@ class Main:
             self.console.add_text("No swir image or roi selected", "#d9534f")
             return
 
-        calculate_index(nano_data=nano, swir_data=swir, console=self.console)
-        self.console.add_text("Indices calculated", "#5cb85c")
+        res =calculate_index(nano_data=nano, swir_data=swir, console=self.console)
+        if res is None:
+            self.console.add_text("Error calculating indices", "#d9534f")
+            return
+        self.console.add_text("Indices saved successfully in:", "#5cb85c")
+        self.console.add_action(res, lambda: open_file(res))
 
 
 if __name__ == "__main__":
