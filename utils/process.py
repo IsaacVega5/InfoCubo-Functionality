@@ -1,3 +1,4 @@
+import ttkbootstrap as ttk
 from tkinter.filedialog import askdirectory
 import numpy as np
 import spectral.io.envi as envi
@@ -8,7 +9,9 @@ from utils.rois import get_roi_info, read_roi
 import pandas as pd
 import os
 
-def calculate_index(nano_data, swir_data, console):
+def calculate_index(nano_data, swir_data, console, progress_bar : ttk.Progressbar):
+    progress_bar.step(0)
+    progress_bar.update_idletasks()
     
     # Obtener la carpeta de destino para guardar los resultados
     folder = askdirectory(title="Select folder to save results")
@@ -61,7 +64,7 @@ def calculate_index(nano_data, swir_data, console):
     # 4. Por cada indice obtener la formula para calcularlo y almacenar en un diccionario
     #    las bandas que se requieren para calcularlo
     
-    for current_index in index_list:
+    for step, current_index in enumerate(index_list):
         
         formula = current_index['Formula']
         try:
@@ -130,5 +133,9 @@ def calculate_index(nano_data, swir_data, console):
         # 11. Exportar el diccionario de indices en un archivo .xlsx y crear una hoja por cada indice
         file_name = formate_filename(current_index['Name'])
         df.to_excel(f"{folder}/{file_name}.xlsx", index=False)
+        
+        current_step = step / len(index_list) * 10
+        progress_bar.step(current_step)
+        progress_bar.update_idletasks()
     return folder + "/"
         
