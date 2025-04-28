@@ -4,7 +4,9 @@ dist/
 *.spec
 
 # test data
-imgs
+imgs/
+out/
+res/
 
 # Venv 
 __pycache__
