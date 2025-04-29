@@ -80,16 +80,6 @@ def calculate_index(nano_data, swir_data, console, progress_bar):
         
         # 5. Por cada banda obtener el valor de la banda mas cercana en el otro sensor
         closest = { band : get_closest_wavelength(band) for band in bands}
-        # for band in bands:
-        #     if band not in closest.keys():
-        #         # closest_waveleght_register[band] = closest[band]
-        #         closest[band] = get_closest_wavelength(band)
-        
-        # console.add_text("\n[i] Closest Wavelengths: ", "#4582ec")
-        # console.add_text("\n".join([f"{band}: {closest[band]['wavelength']}" for band in closest]), "#4582ec")
-        # 6. Por cada banda hacer un diccionario con las parcelas de los rois y su respectivo
-        #    valor promedio, mínimo y máximo de esa banda
-        #    eg. {"parcela1": {"mean": 0.1, "min": 0.2, "max": 0.3}, "parcela2": {...}}
         
         band_roi_data = {}
         for band in closest:
@@ -135,9 +125,6 @@ def calculate_index(nano_data, swir_data, console, progress_bar):
         # 11. Exportar el diccionario de indices en un archivo .xlsx y crear una hoja por cada indice
         file_name = formate_filename(current_index['Name'])
         df.to_excel(f"{folder}/{file_name}.xlsx", index=False)
-        
-        df_closest = pd.DataFrame.from_dict(closest, orient='index')
-        df_closest.to_csv(f"{folder}/closest_wavelengths.csv", index=False)
         
         current_step = step / len(index_list)
         progress_bar(current_step, f"{step+1}/{len(index_list)}")

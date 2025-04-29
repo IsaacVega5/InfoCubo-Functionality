@@ -34,7 +34,6 @@ class ProgressBar(ttk.Canvas):
     def set_progress(self, value, text=""):
         self.__progress_var.set(value)
         self.__text_var.set(text)
-        self.itemconfig
         self.itemconfigure(self.__text_id, text=text)
         
         self.coords(self.__progress_bar_id, 0, 0, self.winfo_width()*value, self.winfo_height())

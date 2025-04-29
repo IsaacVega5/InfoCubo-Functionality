@@ -20,10 +20,7 @@ class Main:
         icon = tk.PhotoImage(data=CUBE_ICON)
         self.root.iconphoto(False, icon)
         
-        
-        
-        # self.root.geometry("400x300")
-        # self.root.resizable(False, False)
+        self.root.resizable(False, False)
 
     def create_widgets(self):
         
