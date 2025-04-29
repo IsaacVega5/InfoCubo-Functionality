@@ -1,10 +1,6 @@
-from concurrent.futures import thread
 import threading
 import tkinter as tk
-from turtle import bgcolor
 import ttkbootstrap as ttk
-from ttkbootstrap.icons import Icon
-
 from classes import State, Style
 from utils.files import open_file
 from utils.process import calculate_index
@@ -56,8 +52,10 @@ class Main:
         self.self_button = wdg.SelfButton(self.root)
     
     def handle_calculate_click(self):
-        print(self.__process_flag.get())
         if self.__process_flag.get():
+            res = tk.messagebox.askyesno("Cancel process", "Are you sure you want to cancel the current process?")
+            if not res:
+                return
             self.__process_flag.set(False)
         else:
             process = threading.Thread(target=self.calculate)
@@ -98,6 +96,9 @@ class Main:
         else:    
             self.console.add_text("Indices saved successfully in:", "#5cb85c")
             self.console.add_action(res, lambda: open_file(res))
+            
+            tk.messagebox.showinfo("Process finished", "Process finished\nIndices saved successfully in:\n\n" + res)
+        
         
         self.calculate_btn.configure(bootstyle="success", text="Calculate")
         self.calculate_btn.update()
