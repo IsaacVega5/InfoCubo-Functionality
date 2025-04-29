@@ -16,7 +16,7 @@ class ProgressBar(ttk.Canvas):
         self.configure(height=15, highlightthickness=0, bg="#444444")
         
         # Vincular el redimensionamiento
-        self.bind("<Configure>", self.__resize_components)
+        self.bind("<Configure>", lambda _: self.__resize_components)
         
     def __resize_components(self):
         self.coords(
