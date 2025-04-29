@@ -7,7 +7,6 @@ class Console(ttk.Frame):
         super().__init__(master, style="secondary", height=200, **kwargs)
 
         self.configure(bootstyle="secondary")  # type: ignore
-        # self.hide_scrollbars()
 
         self.__scroll_frame = ScrolledFrame(
             self,
@@ -44,8 +43,19 @@ class Console(ttk.Frame):
         )
 
         self.__register_labels = []
-        for _ in range(10):
-            self.add_text("")
+        instructions = [
+            [""],
+            ["InfoCubo functionality - Hyperspectral Image Indices", "#4ebf71"],
+            ["----------------------------------------", "#4ebf71"],
+            ["Welcome to InfoCubo functionality!"],
+            ["  This is a tool to calculate indices from hyperspectral images."],
+            ["  Please select the images and rois you want to use."],
+            ["The images must be in ENVI (.hdr) format and the rois in .zip format.", "#f0ad4e"],
+            ["----------------------------------------", "#4ebf71"],
+            
+        ]
+        for text in instructions:
+            self.add_text(text[0], "white" if len(text) == 1 else text[1])
 
     def add_text(self, text, color=None):
         self.__register_labels.append(
