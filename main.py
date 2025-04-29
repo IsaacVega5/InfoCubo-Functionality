@@ -1,9 +1,11 @@
 from concurrent.futures import thread
 import threading
 import tkinter as tk
+from turtle import bgcolor
 import ttkbootstrap as ttk
 from ttkbootstrap.icons import Icon
 
+from classes import State, Style
 from utils.files import open_file
 from utils.process import calculate_index
 import widgets as wdg
@@ -16,11 +18,14 @@ class Main:
         
         style = ttk.Style()
         style.theme_use("darkly")
+        Style(style)
         
         icon = tk.PhotoImage(data=CUBE_ICON)
         self.root.iconphoto(False, icon)
         
         self.root.resizable(False, False)
+        
+        self.__process_flag = State(False) 
 
     def create_widgets(self):
         self.main_frame = ttk.Frame(self.root, padding=20)
@@ -37,7 +42,7 @@ class Main:
         self.calculate_btn = ttk.Button(
             self.main_frame,
             text="Calculate",
-            command=self.calculate,
+            command=self.handle_calculate_click,
             style="success",
         )
         self.calculate_btn.pack(fill="x", pady=5, ipadx=2, ipady=2)
@@ -51,7 +56,13 @@ class Main:
         self.self_button = wdg.SelfButton(self.root)
     
     def handle_calculate_click(self):
-        threading.Thread(target=self.calculate).start()
+        print(self.__process_flag.get())
+        if self.__process_flag.get():
+            self.__process_flag.set(False)
+        else:
+            process = threading.Thread(target=self.calculate)
+            process.daemon = True
+            process.start()
         
     def calculate(self):
         nano = self.nano_entry.get_data()
@@ -65,12 +76,31 @@ class Main:
             self.console.add_text("No swir image or roi selected", "#d9534f")
             return
 
-        res = calculate_index(nano_data=nano, swir_data=swir, console=self.console, progress_bar=self.progress_bar.set_progress)
+        output_path = tk.filedialog.askdirectory()
+        if not output_path:
+            self.console.add_text("No output path selected", "#d9534f")
+            return
+        
+        self.calculate_btn.configure(bootstyle="danger", text="Cancel")
+        self.calculate_btn.update()
+        
+        res = calculate_index(
+            nano_data=nano, 
+            swir_data=swir, 
+            console=self.console, 
+            progress_bar=self.progress_bar.set_progress,
+            process_flag=self.__process_flag,
+            output_path=output_path
+        )
+        
         if res is None:
             self.console.add_text("Error calculating indices", "#d9534f")
-            return
-        self.console.add_text("Indices saved successfully in:", "#5cb85c")
-        self.console.add_action(res, lambda: open_file(res))
+        else:    
+            self.console.add_text("Indices saved successfully in:", "#5cb85c")
+            self.console.add_action(res, lambda: open_file(res))
+        
+        self.calculate_btn.configure(bootstyle="success", text="Calculate")
+        self.calculate_btn.update()
 
 
 if __name__ == "__main__":

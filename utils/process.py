@@ -2,6 +2,7 @@ import ttkbootstrap as ttk
 from tkinter.filedialog import askdirectory
 import numpy as np
 import spectral.io.envi as envi
+from classes import State
 from utils.files import formate_filename, get_firmware, get_metadata
 from utils.formula import eval_formula, format_formula
 from utils.index import get_closest_wavelength, read_idex_list
@@ -9,10 +10,11 @@ from utils.rois import get_roi_info, read_roi
 import pandas as pd
 import os
 
-def calculate_index(nano_data, swir_data, console, progress_bar):
+def calculate_index(nano_data, swir_data, console, progress_bar, process_flag : State, output_path=None):
+    process_flag.set(True)
     progress_bar(0)
     # Obtener la carpeta de destino para guardar los resultados
-    folder = askdirectory(title="Select folder to save results")
+    folder = output_path
     if folder == "":
         return
     
@@ -63,7 +65,8 @@ def calculate_index(nano_data, swir_data, console, progress_bar):
     #    las bandas que se requieren para calcularlo
     # closest = {}
     for step, current_index in enumerate(index_list):
-        
+        if not process_flag.get():
+            return
         formula = current_index['Formula']
         try:
             bands = current_index['Bands'].replace("[", "").replace("]", "").replace("R", "").split(",")
