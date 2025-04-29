@@ -23,7 +23,6 @@ class Main:
         self.root.resizable(False, False)
 
     def create_widgets(self):
-        
         self.main_frame = ttk.Frame(self.root, padding=20)
         self.main_frame.pack(fill="both", expand=True)
         self.main_frame.configure(padding=20)
@@ -48,6 +47,8 @@ class Main:
         
         self.progress_bar = wdg.ProgressBar(self.main_frame, set_progress=0, set_text="")
         self.progress_bar.pack(fill="x", pady=5)
+        
+        self.self_button = wdg.SelfButton(self.root)
     
     def handle_calculate_click(self):
         threading.Thread(target=self.calculate).start()
