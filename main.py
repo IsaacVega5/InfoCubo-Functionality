@@ -49,8 +49,8 @@ class Main:
         self.console = wdg.Console(self.main_frame)
         self.console.pack(fill="both")
         
-        self.porgress_bar = ttk.Progressbar(self.main_frame, length=200, mode="determinate", style="success")
-        self.porgress_bar.pack(fill="x", pady=0)
+        self.progress_bar = wdg.ProgressBar(self.main_frame, set_progress=0, set_text="")
+        self.progress_bar.pack(fill="x", pady=5)
     
     def handle_calculate_click(self):
         threading.Thread(target=self.calculate).start()
@@ -67,7 +67,7 @@ class Main:
             self.console.add_text("No swir image or roi selected", "#d9534f")
             return
 
-        res = calculate_index(nano_data=nano, swir_data=swir, console=self.console, progress_bar=self.porgress_bar)
+        res = calculate_index(nano_data=nano, swir_data=swir, console=self.console, progress_bar=self.progress_bar.set_progress)
         if res is None:
             self.console.add_text("Error calculating indices", "#d9534f")
             return
