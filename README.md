@@ -17,7 +17,7 @@ Quick project to test new functionality to read index functions from text plain 
 
 ### Build the app
 ```shell
-  python to_dist.py
+  python build.py
 ```
 
 This app is just for testing purposes, this same functionality will be included in the main project. [InfoCufo](https://github.com/IsaacVega5/InfoCubo-Tauri)
