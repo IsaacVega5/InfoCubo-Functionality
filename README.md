@@ -1,4 +1,4 @@
-## InfoCufo-Functionality
+## InfoCubo-Functionality
 <p align="center">
 <img src="https://raw.githubusercontent.com/IsaacVega5/InfoCubo-Functionality/refs/heads/main/cube.ico" width="60" height="60">
 </p>
