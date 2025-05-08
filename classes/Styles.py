@@ -30,3 +30,22 @@ class Style:
         ("pressed", "#fc6262"),
       ]
     )
+    
+    style.configure(
+      "primary.TFrame",
+      background="#4ebf71",
+    )
+    style.configure(
+      "secondary.TFrame",
+      background="#222222",
+      borderwidth=2,
+      bordercolor="#4ebf71",
+    )
+    style.configure(
+      "primary.TLabel",
+      foreground="#4ebf71",
+    )
+    style.configure(
+      "danger.TFrame",
+      foreground="#FA5252",
+    )

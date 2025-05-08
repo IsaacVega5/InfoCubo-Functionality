@@ -41,8 +41,11 @@ class Main:
             command=self.handle_calculate_click,
             style="success",
         )
-        self.calculate_btn.pack(fill="x", pady=5, ipadx=2, ipady=2)
+        self.calculate_btn.pack(fill="x", pady=0, ipadx=2, ipady=2)
 
+        self.wavelength_btn = wdg.WaveButton(self.main_frame, self.get_data)
+        self.wavelength_btn.pack(fill="x", pady=5)
+        
         self.console = wdg.Console(self.main_frame)
         self.console.pack(fill="both")
         
@@ -50,6 +53,12 @@ class Main:
         self.progress_bar.pack(fill="x", pady=5)
         
         self.self_button = wdg.SelfButton(self.root)
+    
+    def get_data(self):
+        return {
+            "nano": self.nano_entry.get_data(),
+            "swir": self.swir_entry.get_data(),
+        }
     
     def handle_calculate_click(self):
         if self.__process_flag.get():
