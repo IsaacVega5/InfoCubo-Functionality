@@ -1,3 +1,4 @@
+import os
 import threading
 import tkinter as tk
 import ttkbootstrap as ttk
@@ -83,10 +84,16 @@ class Main:
             self.console.add_text("No swir image or roi selected", "#d9534f")
             return
 
-        output_path = tk.filedialog.askdirectory()
+        folder = nano["img"].split("/")[-1].split(".")[0]
+        output_path = tk.filedialog.askdirectory(
+            initialdir=folder, title="Select output folder", parent=self.root
+        )
+        output_path = os.path.join(output_path, "icf_INDEX")
         if not output_path:
             self.console.add_text("No output path selected", "#d9534f")
             return
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
         
         self.calculate_btn.configure(bootstyle="danger", text="Cancel")
         self.calculate_btn.update()
