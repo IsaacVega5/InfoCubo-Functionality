@@ -3,6 +3,7 @@ import subprocess
 import platform
 import re
 import unicodedata
+from tkinter.filedialog import askdirectory, asksaveasfilename
 
 def open_file(path):
     try:
@@ -68,3 +69,35 @@ def formate_filename(nombre):
     nombre = nombre[:255]  # Límite común en muchos sistemas de archivos
     
     return nombre
+
+def save_to_folder(title = "Select directory", initialdir = "/"):
+    file = initialdir.split("/")[-1]
+    folder = initialdir.replace(file, "")
+    
+    if not os.path.exists(initialdir):
+        path = asksaveasfilename(
+            initialdir=folder,
+            initialfile=file,
+            title=title,
+            filetypes=[("Folder", ".")],
+        )
+    else:
+        path = askdirectory(
+            initialdir=initialdir,
+            title=title,
+        )
+    
+    if not path:
+        return None
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+def find_value_on_dict(d, to_find):
+    for key, value in d.items():
+        if value is to_find:
+            return True
+        elif isinstance(value, dict):
+            if find_value_on_dict(value, to_find):
+                return True
+    return False
