@@ -43,13 +43,13 @@ class Main:
         )
         self.calculate_btn.pack(fill="x", pady=0, ipadx=2, ipady=2)
 
-        self.wavelength_btn = wdg.WaveButton(self.main_frame, self.get_data)
+        self.console = wdg.Console(self.main_frame)
+        self.progress_bar = wdg.ProgressBar(self.main_frame, set_progress=0, set_text="")
+        
+        self.wavelength_btn = wdg.WaveButton(self.main_frame, self.get_data, self.console, self.progress_bar.set_progress)
         self.wavelength_btn.pack(fill="x", pady=5)
         
-        self.console = wdg.Console(self.main_frame)
         self.console.pack(fill="both")
-        
-        self.progress_bar = wdg.ProgressBar(self.main_frame, set_progress=0, set_text="")
         self.progress_bar.pack(fill="x", pady=5)
         
         self.self_button = wdg.SelfButton(self.root)
