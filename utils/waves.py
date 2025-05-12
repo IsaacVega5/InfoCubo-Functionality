@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import time
+import tkinter as tk
 
 import spectral.io.envi as envi
 from data import wavelenghts as wl
@@ -61,8 +62,6 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   console.add_text("\nReading waves...", "white")
   init = time.time()
   
-  file = f"{output_path}/icf_Channels.xlsx"
-  
   max_workers = min(len(total_waves) ,(os.cpu_count() or 1) * 2, 10) if max_workers is None else max_workers
   results = {}
   with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -83,7 +82,7 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   console.add_text("Saving...", "white")
   progress_bar(0, f"{round(0)}%")
   try:
-    with pd.ExcelWriter(file, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(output_path, engine='xlsxwriter', mode='w') as writer:
       for i in range(len(results)):
         df = results[i]
         df.to_excel(writer, sheet_name=f"{total_waves[i]['wave']}", index=False)
@@ -93,13 +92,14 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
     text = str(e)
     text = separate_paragraph(text, 8, 20)
     console.add_text(text, "#FA5252")
+    tk.messagebox.showerror("Error", text)
     return None
   
   end = time.time()
   console.add_text(f"Process finished in {end - init} seconds", "#5cb85c")
   process_flag.set(False)
   progress_bar(100, f"{round(100)}%")
-  return file
+  return output_path
 
 def order_export(data):
   res = [ {

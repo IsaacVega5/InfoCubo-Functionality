@@ -1,10 +1,11 @@
 import threading
+import tkinter as tk
 from tkinter.filedialog import asksaveasfilename
 import ttkbootstrap as ttk
 import widgets as wdg
 
 from classes import State
-from utils.files import find_value_on_dict, open_file, save_to_folder
+from utils.files import find_value_on_dict, open_file
 from utils.waves import export_waves
 
 class WaveButton(ttk.Frame):
@@ -38,7 +39,7 @@ class WaveButton(ttk.Frame):
     if find_value_on_dict(data, None): return
     
     file_name = data['nano']['img'].split("/")[-1]
-    initial_dir = data['nano']['img'].replace(file_name, "icf_WAVES")
+    initial_dir = data['nano']['img'].replace(file_name, "")
     
     path = asksaveasfilename(
       initialdir=initial_dir,
@@ -70,6 +71,7 @@ class WaveButton(ttk.Frame):
       progress_bar=self.__progress_bar
     )
     if outh: 
+      tk.messagebox.showinfo("Process finished", "Process finished\nWavelengths saved successfully in:\n\n" + outh)
       self.__console.add_text("Wavelengths exported in:", "#4ebf71")
       self.__console.add_action(outh, lambda : open_file(outh))
     
