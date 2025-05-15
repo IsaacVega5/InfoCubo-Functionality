@@ -76,15 +76,11 @@ class Main:
         nano = self.nano_entry.get_data()
         swir = self.swir_entry.get_data()
 
-        if not nano["img"] or not nano["roi"]:
-            self.console.add_text("No nano image or roi selected", "#d9534f")
+        if (not nano["img"] or not nano["roi"]) and (not swir["img"] or not swir["roi"]):
+            self.console.add_text("Neither nano or swir image or roi selected", "#d9534f")
             return
 
-        if not swir["img"] or not swir["roi"]:
-            self.console.add_text("No swir image or roi selected", "#d9534f")
-            return
-
-        folder = nano["img"].split("/")[-1].split(".")[0]
+        folder = nano["img"].split("/")[-1].split(".")[0] if nano["img"] else swir["img"].split("/")[-1].split(".")[0]
         output_path = tk.filedialog.askdirectory(
             initialdir=folder, title="Select output folder", parent=self.root
         )

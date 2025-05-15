@@ -27,12 +27,12 @@ def calculate_index(nano_data, swir_data, console, progress_bar, process_flag : 
         os.makedirs(folder)
     
     imgs = {
-        'nano' : envi.open(nano_data["img"]),
-        'swir' : envi.open(swir_data["img"])
+        'nano' : envi.open(nano_data["img"]) if nano_data["img"] else None,
+        'swir' : envi.open(swir_data["img"]) if swir_data["img"] else None
     }
     
-    nano_firmware = get_firmware(get_metadata(nano_data["img"]))
-    swir_firmware = get_firmware(get_metadata(swir_data["img"]))
+    nano_firmware = get_firmware(get_metadata(nano_data["img"])) if nano_data["img"] else None
+    swir_firmware = get_firmware(get_metadata(swir_data["img"])) if swir_data["img"] else None
 
     warnings = []
     if "nhs" not in str(nano_firmware).lower() and nano_firmware:
@@ -49,14 +49,14 @@ def calculate_index(nano_data, swir_data, console, progress_bar, process_flag : 
     
     # 1. Leer rois de nano y swir
     rois = {
-        'nano' : read_roi(nano_data["roi"]),
-        'swir' : read_roi(swir_data["roi"])
+        'nano' : read_roi(nano_data["roi"]) if nano_data["roi"] else None,
+        'swir' : read_roi(swir_data["roi"]) if swir_data["roi"] else None
     }
-    
-    if len(rois['nano']) != len(rois['swir']):
-        warnings.append(
-            "    - The number of rois in the images is different"
-        )
+    if rois["nano"] and rois["swir"]:    
+        if len(rois['nano']) != len(rois['swir']):
+            warnings.append(
+                "    - The number of rois in the images is different"
+            )
     
     # 2. Comparar rois para ver si coinciden
     if len(warnings) > 0:
@@ -110,6 +110,12 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
     for band in closest:
         if band in band_roi_data:
             continue
+        
+        # validate band
+        if not imgs[closest[band]["sensor"]]:
+            console.add_text(f"\n⚠️Warning: \n    - Skipping {current_index['Index']} because {closest[band]['sensor']} is not in the images\n",
+                "#f0ad4e")
+            return
         band_img = imgs[closest[band]["sensor"]].read_band(closest[band]["band"])
 
         roi_list = rois[closest[band]["sensor"]]
