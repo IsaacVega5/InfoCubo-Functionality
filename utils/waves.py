@@ -20,12 +20,12 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   progress_bar(0)
   
   imgs = {
-    'nano' : envi.open(nano_data["img"]),
-    'swir' : envi.open(swir_data["img"])
+    'nano' : envi.open(nano_data["img"]) if nano_data["img"] else None,
+    'swir' : envi.open(swir_data["img"]) if swir_data["img"] else None
   }
   
-  nano_firmware = get_firmware(get_metadata(nano_data["img"]))
-  swir_firmware = get_firmware(get_metadata(swir_data["img"]))
+  nano_firmware = get_firmware(get_metadata(nano_data["img"])) if nano_data["img"] else None
+  swir_firmware = get_firmware(get_metadata(swir_data["img"])) if swir_data["img"] else None
 
   warnings = []
   if "nhs" not in str(nano_firmware).lower() and nano_firmware:
@@ -39,8 +39,8 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   
   # 1. Leer rois de nano y swir
   rois = {
-    'nano' : read_roi(nano_data["roi"]),
-    'swir' : read_roi(swir_data["roi"])
+    'nano' : read_roi(nano_data["roi"]) if nano_data["roi"] else [],
+    'swir' : read_roi(swir_data["roi"]) if swir_data["roi"] else []
   }
   
   if len(rois['nano']) != len(rois['swir']):
@@ -65,7 +65,13 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   max_workers = min(len(total_waves) ,(os.cpu_count() or 1) * 2, 10) if max_workers is None else max_workers
   results = {}
   with ThreadPoolExecutor(max_workers=max_workers) as executor:
-    futures = {executor.submit(get_wave_data_df, (imgs[total_waves[i]['type']], total_waves[i]['band'], rois[total_waves[i]['type']])) : i for i in range(len(total_waves))}
+    # futures = {executor.submit(get_wave_data_df, (imgs[total_waves[i]['type']], total_waves[i]['band'], rois[total_waves[i]['type']])) : i for i in range(len(total_waves))}
+    futures = {}
+    for i in range(len(total_waves)):
+      if not imgs[total_waves[i]['type']]:
+        console.add_text(f"\n⚠️Warning: \n    - Skipping {total_waves[i]['wave']} because {total_waves[i]['type']} is not in the images\n", "#f0ad4e")
+        continue
+      futures[executor.submit(get_wave_data_df, (imgs[total_waves[i]['type']], total_waves[i]['band'], rois[total_waves[i]['type']], total_waves[i]['wave']))] = i
 
     for future in as_completed(futures):
       if not resource_controller():
@@ -84,8 +90,8 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   try:
     with pd.ExcelWriter(output_path, engine='xlsxwriter', mode='w') as writer:
       for i in range(len(results)):
-        df = results[i]
-        df.to_excel(writer, sheet_name=f"{total_waves[i]['wave']}", index=False)
+        df = results[i]['df']
+        df.to_excel(writer, sheet_name=f"{results[i]['wave']}", index=False)
         cont += 1
         progress_bar((cont + 1) / len(total_waves), f"{round((cont + 1) / len(total_waves) * 100)}%")
   except Exception as e: 
@@ -116,10 +122,14 @@ def order_export(data):
 
 def get_wave_data_df(props : tuple):
   """
-  props = (img, band, roi_set)
+  props = (img, band, roi_set, type)
   """
-  img, band, roi_set = props
+  img, band, roi_set, wave = props
   band_img = img.read_band(band)
   roi_info = order_export(get_roi_info(roi_set, band_img))
   df = pd.DataFrame(roi_info)
-  return df
+  return {
+    'band': band,
+    'wave': wave,
+    'df': df
+  }

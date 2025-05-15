@@ -36,10 +36,10 @@ class WaveButton(ttk.Frame):
     self.update_style()
     
     data = self.get_data()
-    if find_value_on_dict(data, None): return
+    if (not data['nano']['img'] or not data['nano']['roi']) and (not data['swir']['img'] or not data['swir']['roi']): return
     
-    file_name = data['nano']['img'].split("/")[-1]
-    initial_dir = data['nano']['img'].replace(file_name, "")
+    file_name = data['nano']['img'].split("/")[-1] if data['nano']['img'] else data['swir']['img'].split("/")[-1]
+    initial_dir = data['nano']['img'].replace(file_name, "") if data['nano']['img'] else data['swir']['img'].replace(file_name, "")
     
     path = asksaveasfilename(
       initialdir=initial_dir,
