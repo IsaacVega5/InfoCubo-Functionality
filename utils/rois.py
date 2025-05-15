@@ -15,28 +15,49 @@ def read_roi(roi_path):
     return order_roi_list
 
 def get_roi_info(roi_list, image):
-    """
-    Get the information of the roi.
-    """
-    # Get the image size
-    image_size = image.shape
-
-    results = {}
-    for roi in roi_list:
-      polygon = [ [x, y] for x, y in zip(roi_list[roi]['x'], roi_list[roi]['y'])]
-      polygon = np.array(polygon, dtype=np.int32)
+  """
+  Get ROI information with optimized operations and negative values clipped to 0.
+  
+  Args:
+    roi_list: Dictionary of ROIs with 'x' and 'y' coordinates
+    image: 2D numpy array with image data
       
-      mask = np.zeros(image_size, dtype=np.uint8)
-      cv2.fillPoly(mask, [polygon], 255)
-      
-      # Aplicar máscara y filtrar NaN en un solo paso
-      value_list = image[(mask > 0) & (~np.isnan(mask))]
-      
-      results[roi] = {
-        'mean': np.mean(value_list),
-        'min': np.min(value_list),
-        'max': np.max(value_list),
-        'std': np.std(value_list),
-        'area': len(value_list),
+  Returns:
+    Dictionary with statistics for each ROI (negative values converted to 0)
+  """
+  results = {}
+  height, width = image.shape
+  
+  for roi_name, roi_data in roi_list.items():
+    # Create polygon efficiently
+    polygon = np.column_stack((roi_data['x'], roi_data['y'])).astype(np.int32)
+    
+    # Create mask
+    mask = np.zeros((height, width), dtype=np.uint8)
+    cv2.fillPoly(mask, [polygon], 255)
+    
+    # Get masked values and process them
+    masked_image = image[mask > 0]
+    valid_values = masked_image[~np.isnan(masked_image)]
+    
+    # Convert negative values to 0
+    valid_values = np.where(valid_values < 0, 0, valid_values)
+    
+    if valid_values.size > 0:
+      results[roi_name] = {
+        'mean': np.mean(valid_values),
+        'min': max(np.min(valid_values), 0),  # Ensure min is not negative
+        'max': np.max(valid_values),
+        'std': np.std(valid_values),
+        'area': valid_values.size,
       }
-    return results
+    else:
+      results[roi_name] = {
+        'mean': np.nan,
+        'min': np.nan,
+        'max': np.nan,
+        'std': np.nan,
+        'area': 0
+      }
+            
+  return results
