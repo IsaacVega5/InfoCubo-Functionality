@@ -35,7 +35,6 @@ class WaveButton(ttk.Frame):
     self.__pressed.set(False)
     self.update_style()
     
-    print(self.__process_flag.get())
     if self.__process_flag.get():
       self.__console.add_text("Canceling process", "#d9534f")     
       self.__process_flag.set(False)
