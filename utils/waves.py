@@ -71,7 +71,7 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
       if not imgs[total_waves[i]['type']]:
         console.add_text(f"\n⚠️Warning: \n    - Skipping {total_waves[i]['wave']} because {total_waves[i]['type']} is not in the images\n", "#f0ad4e")
         continue
-      futures[executor.submit(get_wave_data_df, (imgs[total_waves[i]['type']], total_waves[i]['band'], rois[total_waves[i]['type']], total_waves[i]['wave']))] = i
+      futures[executor.submit(get_wave_data_df, (imgs[total_waves[i]['type']], total_waves[i]['band'], rois[total_waves[i]['type']], total_waves[i]['wave'], process_flag))] = i
 
     for future in as_completed(futures):
       if not resource_controller():
@@ -90,6 +90,7 @@ def export_waves(nano_data, swir_data, output_path, process_flag : State, consol
   try:
     with pd.ExcelWriter(output_path, engine='xlsxwriter', mode='w') as writer:
       for i in range(len(results)):
+        if not results[i]: continue
         df = results[i]['df']
         df.to_excel(writer, sheet_name=f"{results[i]['wave']}", index=False)
         cont += 1
@@ -122,9 +123,10 @@ def order_export(data):
 
 def get_wave_data_df(props : tuple):
   """
-  props = (img, band, roi_set, type)
+  props = (img, band, roi_set, type, process_flag)
   """
-  img, band, roi_set, wave = props
+  img, band, roi_set, wave, process_flag = props
+  if not process_flag.get(): return
   band_img = img.read_band(band)
   roi_info = order_export(get_roi_info(roi_set, band_img))
   df = pd.DataFrame(roi_info)
