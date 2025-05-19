@@ -80,16 +80,18 @@ class Main:
             self.console.add_text("Neither nano or swir image or roi selected", "#d9534f")
             return
 
-        folder = nano["img"].split("/")[-1].split(".")[0] if nano["img"] else swir["img"].split("/")[-1].split(".")[0]
+        folder = nano["img"] if nano["img"] else swir["img"]
+        folder = "/".join(folder.split("/")[:-1])
+    
         output_path = tk.filedialog.askdirectory(
             initialdir=folder, title="Select output folder", parent=self.root
         )
-        output_path = os.path.join(output_path, "icf_INDEX")
         if not output_path:
             self.console.add_text("No output path selected", "#d9534f")
             return
         if not os.path.exists(output_path):
             os.makedirs(output_path)
+        output_path = os.path.join(output_path, "icf_INDEX")
         
         self.calculate_btn.configure(bootstyle="danger", text="Cancel")
         self.calculate_btn.update()

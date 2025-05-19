@@ -43,8 +43,8 @@ class WaveButton(ttk.Frame):
     data = self.get_data()
     if (not data['nano']['img'] or not data['nano']['roi']) and (not data['swir']['img'] or not data['swir']['roi']): return
     
-    file_name = data['nano']['img'].split("/")[-1] if data['nano']['img'] else data['swir']['img'].split("/")[-1]
-    initial_dir = data['nano']['img'].replace(file_name, "") if data['nano']['img'] else data['swir']['img'].replace(file_name, "")
+    initial_dir = data['nano']['img'] if data['nano']['img'] else data['swir']['img']
+    initial_dir = "/".join(initial_dir.split("/")[:-1])
     
     path = asksaveasfilename(
       initialdir=initial_dir,
