@@ -132,6 +132,7 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
     #    modificada por cada parcela
     
     results = {}
+    error = []
     for index, roi in enumerate(rois["nano"]):
         try:
             bands_mean = { band : band_roi_data[band][roi]['mean'] for band in band_roi_data.keys() }
@@ -152,7 +153,8 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
             } 
             
         except Exception as e:
-            console.add_text(f"\n⚠️Error on index {index}: {current_index['Index']}: {e}", "#d9534f")
+            # console.add_text(f"\n⚠️Error on index {index}: {current_index['Index']}: {e}", "#d9534f")
+            error.append(f"Error on index {index}: {current_index['Index']}: {e}")
             continue
     
     # 10. Almacenar los resultados en un diccionario de indices
@@ -168,4 +170,10 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
         for key in closest.keys():
             f.write(f"{key} -> {closest[key]['wavelength']} ({closest[key]['sensor']})\n")
             
-    console.add_text(f" - {current_index['Index']}: {formula}", "#fff")
+    if len(error) > 0:
+        console.add_text(f"\n⚠️Error: on {current_index['Index']}", "#d9534f")
+        for e in error:
+            console.add_text(e, "#d9534f")
+        return
+
+    console.add_text(f"\n - {current_index['Index']}: {formula}", "#fff")
