@@ -21,4 +21,13 @@ Quick project to test new functionality to read index functions from text plain 
   python build.py
 ```
 
+### Run the app
+After build the app, you can run the app from the dist folder by clicking on the .exe file
+
+### Tun the app in debug mode
+If you want to run the app in debug mode (to see the logs in a console), go to the dist folder and run the app from the terminal with the --debug flag
+```shell
+  start InfoCuboFunctionality.exe --debug
+```
+
 This app is just for testing purposes, this same functionality will be included in the main project. [InfoCufo](https://github.com/IsaacVega5/InfoCubo-Tauri)
