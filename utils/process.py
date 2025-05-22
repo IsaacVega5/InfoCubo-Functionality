@@ -1,4 +1,3 @@
-from ast import Try
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import spectral.io.envi as envi

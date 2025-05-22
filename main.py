@@ -105,6 +105,7 @@ class Main:
             output_path=output_path
         )
         
+        self.__process_flag.set(False)
         if res is None:
             self.console.add_text("Error calculating indices", "#d9534f")
         else:    
