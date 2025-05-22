@@ -1,28 +1,50 @@
+import argparse
 import os
+import sys
 import threading
 import tkinter as tk
+
 import ttkbootstrap as ttk
+
+import widgets as wdg
 from classes import State, Style
+from icons import CUBE_ICON
+from utils.debug import (
+    handle_exception,
+    keep_console_alive,
+    setup_console,
+    setup_logging,
+)
 from utils.files import open_file
 from utils.process import calculate_index
-import widgets as wdg
-from icons import CUBE_ICON
+
 
 class Main:
-    def __init__(self, root):
+    def __init__(self, root, debug_mode = False):
+        self.debug_mode = debug_mode
+        self.logger = setup_logging(debug_mode) 
+        setup_logging(debug_mode)
+        
         self.root = root
-        self.root.title("InfoCubo - Functionality")
+        title = "InfoCubo - Functionality"
+        if debug_mode:
+            title += " [DEBUG MODE] - Executed from console"
+        self.root.title(title)
         
-        style = ttk.Style()
-        style.theme_use("darkly")
-        Style(style)
-        
-        icon = tk.PhotoImage(data=CUBE_ICON)
-        self.root.iconphoto(False, icon)
-        
-        self.root.resizable(False, False)
-        
-        self.__process_flag = State(False) 
+        try:
+            style = ttk.Style()
+            style.theme_use("darkly")
+            Style(style)
+            
+            icon = tk.PhotoImage(data=CUBE_ICON)
+            self.root.iconphoto(False, icon)
+            
+            self.root.resizable(False, False)
+            
+            self.__process_flag = State(False)
+        except Exception:
+            self.logger.error("Error initializing main window", exc_info=True)
+            raise
 
     def create_widgets(self):
         self.main_frame = ttk.Frame(self.root, padding=20)
@@ -118,9 +140,25 @@ class Main:
         self.calculate_btn.configure(bootstyle="success", text="Calculate")
         self.calculate_btn.update()
 
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    args = parser.parse_args()
+    
+    setup_console()
+    
+    logger = setup_logging(args.debug)
+    
+    if args.debug:
+        threading.Thread(target=keep_console_alive, daemon=True).start()
+    
+    sys.excepthook = handle_exception
+    
     root = tk.Tk()
-    main = Main(root)
-    main.create_widgets()
-    root.mainloop()
+    try:
+        app = Main(root, debug_mode=args.debug)
+        app.create_widgets()
+        root.mainloop()
+    except Exception:
+        logger.critical("Error initializing main window", exc_info=True)
+        raise

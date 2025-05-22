@@ -1,14 +1,17 @@
+import os
+import shutil
+
 import PyInstaller.__main__
 import PyInstaller.config
-import shutil
-import os
 
 PyInstaller.__main__.run([
   "main.py", 
   "--name", "InfoCuboFunctionality", 
   "--noconsole", 
   "--icon=cube.ico",
-  "--version-file", "version.txt" 
+  "--version-file", "version.txt",
+  "--add-data", "logs;logs",
+  "--add-data", "data;data" 
 ])
 
 #COPYING INDEX TABLE

@@ -11,3 +11,6 @@ res/
 # Venv 
 __pycache__
 .venv
+
+#logs
+logs/
