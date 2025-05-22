@@ -81,7 +81,7 @@ class Main:
             return
 
         folder = nano["img"] if nano["img"] else swir["img"]
-        folder = "/".join(folder.split("/")[:-1])
+        folder = "/".join(folder.split("/")[:-2])
     
         output_path = tk.filedialog.askdirectory(
             initialdir=folder, title="Select output folder", parent=self.root
