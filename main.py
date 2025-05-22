@@ -81,7 +81,7 @@ class Main:
             return
 
         folder = nano["img"] if nano["img"] else swir["img"]
-        folder = "/".join(folder.split("/")[:-1])
+        folder = "/".join(folder.split("/")[:-2])
     
         output_path = tk.filedialog.askdirectory(
             initialdir=folder, title="Select output folder", parent=self.root
@@ -105,6 +105,7 @@ class Main:
             output_path=output_path
         )
         
+        self.__process_flag.set(False)
         if res is None:
             self.console.add_text("Error calculating indices", "#d9534f")
         else:    

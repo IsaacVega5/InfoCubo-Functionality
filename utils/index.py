@@ -16,7 +16,8 @@ def get_closest_wavelength(wavelength_to_find):
     "sensor": None,
     "band": None,
     "wavelength": None,
-    "diff": float("inf")
+    "diff": float("inf"),
+    "ref": wavelength_to_find
   }
   
   for band, wavelength in enumerate(wl.NANO):

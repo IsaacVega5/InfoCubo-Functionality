@@ -1,6 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import ttkbootstrap as ttk
-from tkinter.filedialog import askdirectory
 import numpy as np
 import spectral.io.envi as envi
 from classes import State
@@ -128,28 +126,35 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
     # 8. Analizar la formula y hacer cambios necesarios de símbolos
     #    eg. ^ -> ** √ -> math.sqrt()
     formula = format_formula(formula)
-    console.add_text(f" - {current_index['Index']}: {formula}", "#fff")
     
     # 9. Hacer un eval() de la formula con los datos obtenidos en el paso 6 sobre la función ya
     #    modificada por cada parcela
     
     results = {}
+    error = []
     for index, roi in enumerate(rois["nano"]):
-        bands_mean = { band : band_roi_data[band][roi]['mean'] for band in band_roi_data.keys() }
-        bands_min = { band : band_roi_data[band][roi]['min'] for band in band_roi_data.keys() }
-        bands_max = { band : band_roi_data[band][roi]['max'] for band in band_roi_data.keys() }
-        bands_std = { band : band_roi_data[band][roi]['std'] for band in band_roi_data.keys() }
-        bands_area = np.mean([roi_data['area'] for band_data in band_roi_data.values() for roi_data in band_data.values()])
+        try:
+            bands_mean = { band : band_roi_data[band][roi]['mean'] for band in band_roi_data.keys() }
+            bands_min = { band : band_roi_data[band][roi]['min'] for band in band_roi_data.keys() }
+            bands_max = { band : band_roi_data[band][roi]['max'] for band in band_roi_data.keys() }
+            bands_std = { band : band_roi_data[band][roi]['std'] for band in band_roi_data.keys() }
+            bands_area = np.mean([roi_data['area'] for band_data in band_roi_data.values() for roi_data in band_data.values()])
 
-        results[index] = {
-            "Parc.": index,
-            "Name": roi,
-            "area" : bands_area, 
-            "mean" : eval_formula(formula, bands_mean),
-            "min" : eval_formula(formula, bands_min),
-            "max" : eval_formula(formula, bands_max),
-            "std" : eval_formula(formula, bands_std),
-        } 
+        
+            results[index] = {
+                "Parc.": index,
+                "Name": roi,
+                "area" : bands_area, 
+                "mean" : eval_formula(formula, bands_mean),
+                "min" : eval_formula(formula, bands_min),
+                "max" : eval_formula(formula, bands_max),
+                "std" : eval_formula(formula, bands_std),
+            } 
+            
+        except Exception as e:
+            # console.add_text(f"\n⚠️Error on index {index}: {current_index['Index']}: {e}", "#d9534f")
+            error.append(f"Error on index {index}: {current_index['Index']}: {e}")
+            continue
     
     # 10. Almacenar los resultados en un diccionario de indices
     #    eg. indices = {"index1": {"parcela1": 0.1, "parcela2": 0.2}, "index2": {...}}
@@ -158,3 +163,16 @@ def process_index(process_flag : State, imgs, rois, band_roi_data, current_index
     # 11. Exportar el diccionario de indices en un archivo .xlsx y crear una hoja por cada indice
     file_name = formate_filename(current_index['Name'])
     df.to_excel(f"{folder}/{file_name}.xlsx", index=False)
+    
+    with open(f"{folder}/{file_name}_waves.txt", "w") as f:
+        f.write(f"{current_index['Name']}\n\n\t{formula}\n\n")
+        for key in closest.keys():
+            f.write(f"{key} -> {closest[key]['wavelength']} ({closest[key]['sensor']})\n")
+            
+    if len(error) > 0:
+        console.add_text(f"\n⚠️Error: on {current_index['Index']}", "#d9534f")
+        for e in error:
+            console.add_text(e, "#d9534f")
+        return
+
+    console.add_text(f"\n - {current_index['Index']}: {formula}", "#fff")
